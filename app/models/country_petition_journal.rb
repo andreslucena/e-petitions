@@ -31,6 +31,8 @@ class CountryPetitionJournal < ActiveRecord::Base
   end
 
   def self.reset!
+    # NOTE: country <> '' is the closest we can (performantly) get to rails'
+    # String#blank? in SQL
     connection.execute 'TRUNCATE TABLE country_petition_journals'
     connection.execute <<-SQL.strip_heredoc
       INSERT INTO country_petition_journals
@@ -40,6 +42,7 @@ class CountryPetitionJournal < ActiveRecord::Base
         timezone('utc', now()), timezone('utc', now())
       FROM signatures
       WHERE state = 'validated'
+      AND country <> ''
       GROUP BY petition_id, country
     SQL
   end
